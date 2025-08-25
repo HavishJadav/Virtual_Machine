@@ -41,23 +41,117 @@ class ConstantPool:
     def __repr__(self):
         return f"<ConstantPool size={len(self._constants)}>"
 
+class Stack:
+    def __init__(self, max_size: int):
+        self._max_size = max_size
+        self._stack = []
+
+    def push(self, item):
+        if len(self._stack) >= self._max_size:
+            raise MemoryError("Stack overflow")
+        self._stack.append(item)
+
+    def pop(self):
+        if not self._stack:
+            raise IndexError("Pop from an empty stack")
+        return self._stack.pop()
+
+    def peek(self):
+        if not self._stack:
+            raise IndexError("Peek into an empty stack")
+        return self._stack[-1]
+
+    def __len__(self):
+        return len(self._stack)
+
+    def __repr__(self):
+        return f"<Stack size={len(self)}/{self._max_size}>"
+
+class Heap:
+    """A region of memory for dynamic allocation managed via alloc and free."""
+    def __init__(self, max_size: int):
+        self._max_size = max_size
+        self._memory = {}
+        self._next_addr = 0
+
+    def alloc(self, obj) -> int:
+        """Allocates memory for an object on the heap and returns its address."""
+        if len(self._memory) >= self._max_size:
+            raise MemoryError("Heap overflow")
+        
+        addr = self._next_addr
+        self._memory[addr] = obj
+        self._next_addr += 1
+        return addr
+
+    def free(self, address: int):
+        """Frees the memory at the given address."""
+        if address not in self._memory:
+            raise ValueError(f"Invalid heap address: {address}")
+        del self._memory[address]
+
+    def get(self, address: int):
+        """Retrieves the object at the given heap address."""
+        if address not in self._memory:
+            raise ValueError(f"Invalid heap address: {address}")
+        return self._memory[address]
+
+    def __repr__(self):
+        return f"<Heap size={len(self._memory)}/{self._max_size}>"
+
 if __name__ == "__main__":
+    # --- Existing test code ---
     code = CodeSegment(b"\x01\x02\x03\x04")
     print(code)
     print("Bytecode:", code.bytecode)
+    print("-" * 20)
 
     globals_area = GlobalData()
     globals_area.set("counter", 10)
     globals_area.set("flag", True)
     print(globals_area)
     print("Global 'counter':", globals_area.get("counter"))
+    print("-" * 20)
 
     const_pool = ConstantPool(["Hello", 42, 3.14])
     print(const_pool)
     print("Constant at index 1:", const_pool.get_constant(1))
+    print("-" * 20)
 
+    stack = Stack(max_size=3)
+    stack.push(100)
+    stack.push(200)
+    print(stack)
+    print("Popped from stack:", stack.pop())
+    print(stack)
+    print("-" * 20)
+
+    # --- Heap demonstration ---
+    print("Heap Tests:")
+    heap = Heap(max_size=5)
+    print(heap)
+    
+    # Allocate some objects
+    addr1 = heap.alloc({"type": "user", "id": 101})
+    addr2 = heap.alloc([1, 2, 3, 4, 5])
+    print(f"Allocated object 1 at address: {addr1}")
+    print(f"Allocated object 2 at address: {addr2}")
+    print(heap)
+    
+    # Retrieve and use an object
+    retrieved_obj = heap.get(addr1)
+    print(f"Retrieved object from address {addr1}: {retrieved_obj}")
+    
+    # Free an object
+    heap.free(addr1)
+    print(f"Freed memory at address: {addr1}")
+    print(heap)
+    print("-" * 20)
+    
+    # --- Error handling tests ---
+    print("Error Handling:")
     try:
-        code._bytecode = b"\x00"
+        code.bytecode = b"\x00"
     except AttributeError as e:
         print("Error:", e)
 
@@ -65,4 +159,23 @@ if __name__ == "__main__":
         print(const_pool.get_constant(10))
     except IndexError as e:
         print("Error:", e)
+        
+    try:
+        stack.push(300)
+        stack.push(400)
+        stack.push(500) # This should fail
+    except MemoryError as e:
+        print("Error:", e)
 
+    try:
+        stack.pop()
+        stack.pop()
+        stack.pop() # This should fail
+    except IndexError as e:
+        print("Error:", e)
+        
+    try:
+        # Try to access freed memory
+        heap.get(addr1)
+    except ValueError as e:
+        print("Error:", e)
