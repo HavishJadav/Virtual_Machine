@@ -41,6 +41,32 @@ class ConstantPool:
     def __repr__(self):
         return f"<ConstantPool size={len(self._constants)}>"
 
+class Stack:
+    def __init__(self, max_size: int):
+        self._max_size = max_size
+        self._stack = []
+
+    def push(self, item):
+        if len(self._stack) >= self._max_size:
+            raise MemoryError("Stack overflow")
+        self._stack.append(item)
+
+    def pop(self):
+        if not self._stack:
+            raise IndexError("Pop from an empty stack")
+        return self._stack.pop()
+
+    def peek(self):
+        if not self._stack:
+            raise IndexError("Peek into an empty stack")
+        return self._stack[-1]
+
+    def __len__(self):
+        return len(self._stack)
+
+    def __repr__(self):
+        return f"<Stack size={len(self)}/{self._max_size}>"
+
 if __name__ == "__main__":
     code = CodeSegment(b"\x01\x02\x03\x04")
     print(code)
@@ -56,6 +82,13 @@ if __name__ == "__main__":
     print(const_pool)
     print("Constant at index 1:", const_pool.get_constant(1))
 
+    stack = Stack(max_size=3)
+    stack.push(100)
+    stack.push(200)
+    print(stack)
+    print("Popped from stack:", stack.pop())
+    print(stack)
+
     try:
         code._bytecode = b"\x00"
     except AttributeError as e:
@@ -65,4 +98,3 @@ if __name__ == "__main__":
         print(const_pool.get_constant(10))
     except IndexError as e:
         print("Error:", e)
-
