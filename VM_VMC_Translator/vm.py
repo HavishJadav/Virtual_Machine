@@ -68,14 +68,12 @@ class Stack:
         return f"<Stack size={len(self)}/{self._max_size}>"
 
 class Heap:
-    """A region of memory for dynamic allocation managed via alloc and free."""
     def __init__(self, max_size: int):
         self._max_size = max_size
         self._memory = {}
         self._next_addr = 0
 
     def alloc(self, obj) -> int:
-        """Allocates memory for an object on the heap and returns its address."""
         if len(self._memory) >= self._max_size:
             raise MemoryError("Heap overflow")
         
@@ -85,13 +83,11 @@ class Heap:
         return addr
 
     def free(self, address: int):
-        """Frees the memory at the given address."""
         if address not in self._memory:
             raise ValueError(f"Invalid heap address: {address}")
         del self._memory[address]
 
     def get(self, address: int):
-        """Retrieves the object at the given heap address."""
         if address not in self._memory:
             raise ValueError(f"Invalid heap address: {address}")
         return self._memory[address]
@@ -100,7 +96,6 @@ class Heap:
         return f"<Heap size={len(self._memory)}/{self._max_size}>"
 
 if __name__ == "__main__":
-    # --- Existing test code ---
     code = CodeSegment(b"\x01\x02\x03\x04")
     print(code)
     print("Bytecode:", code.bytecode)
@@ -126,29 +121,24 @@ if __name__ == "__main__":
     print(stack)
     print("-" * 20)
 
-    # --- Heap demonstration ---
     print("Heap Tests:")
     heap = Heap(max_size=5)
     print(heap)
     
-    # Allocate some objects
     addr1 = heap.alloc({"type": "user", "id": 101})
     addr2 = heap.alloc([1, 2, 3, 4, 5])
     print(f"Allocated object 1 at address: {addr1}")
     print(f"Allocated object 2 at address: {addr2}")
     print(heap)
     
-    # Retrieve and use an object
     retrieved_obj = heap.get(addr1)
     print(f"Retrieved object from address {addr1}: {retrieved_obj}")
     
-    # Free an object
     heap.free(addr1)
     print(f"Freed memory at address: {addr1}")
     print(heap)
     print("-" * 20)
     
-    # --- Error handling tests ---
     print("Error Handling:")
     try:
         code.bytecode = b"\x00"
@@ -163,19 +153,16 @@ if __name__ == "__main__":
     try:
         stack.push(300)
         stack.push(400)
-        stack.push(500) # This should fail
     except MemoryError as e:
         print("Error:", e)
 
     try:
         stack.pop()
         stack.pop()
-        stack.pop() # This should fail
     except IndexError as e:
         print("Error:", e)
         
     try:
-        # Try to access freed memory
         heap.get(addr1)
     except ValueError as e:
         print("Error:", e)
