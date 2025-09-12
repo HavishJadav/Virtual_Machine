@@ -1,0 +1,35 @@
+Mnemonic   Opcode   Arguments   Stack Effect           Description
+--------------------------------------------------------------------------------------------------------------------------------
+NOP        0x00     None        ( -- )                 No Operation. Does nothing and proceeds to the next instruction.
+
+PUSH       0x01     value       ( -- value )           Pushes an immediate value onto the top of the 
+
+stack.
+
+POP        0x02     None        ( value -- )           Pops (removes) the top value from the stack.
+
+DUP        0x0E     None        ( value -- value,value ) Duplicates the value at the top of the stack.
+
+SWAP       0x0F     None        ( a,b -- b,a )         Swaps the top two values on the stack.
+
+ADD        0x03     None        ( a,b -- a+b )         Adds the top two values on the stack and pushes the result.
+
+SUB        0x04     None        ( a,b -- a-b )         Subtracts the top value from the second-to-top value and pushes the result.
+
+MUL        0x05     None        ( a,b -- a*b )         Multiplies the top two values on the stack and pushes the result.
+
+DIV        0x06     None        ( a,b -- a/b )         Divides the second-to-top value by the top value and pushes the result.
+
+LOAD       0x07     None        ( address -- value )   Loads a value from a memory address (popped from the stack) and pushes it.
+
+STORE      0x08     None        ( value,address -- )   Stores a value into a memory address (both popped from the stack).
+
+JMP        0x09     address     ( -- )                 Jumps unconditionally to the specified instruction address.
+
+JZ         0x0A     address     ( value -- )           Jump if Zero. Pops a value; if it is zero, jumps to the address.
+
+CALL       0x0B     address     ( -- return_addr )     Calls a subroutine. Pushes the return address and jumps to subroutine.
+
+RET        0x0C     None        ( return_addr -- )     Returns from a subroutine by popping the return address and jumping to it.
+
+HALT       0x0D     None        ( -- )                 Halts the execution of the program.
